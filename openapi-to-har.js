@@ -227,8 +227,8 @@ const createHarParameterObjects = function (
   }
 
   const objects = [];
-  style = style ?? getDefaultStyleForLocation(location);
-  explode = explode ?? getDefaultExplodeForStyle(style);
+  style = style || getDefaultStyleForLocation(location);
+  explode = explode || getDefaultExplodeForStyle(style);
 
   if (location === 'query' || location === 'cookie') {
     const separator = getArrayElementSeparator(style);
@@ -288,6 +288,52 @@ const createHarParameterObjects = function (
 
   return objects;
 };
+
+const formatSamples = function (sample) {
+  const params = [];
+
+  Object.keys(sample).map((key) => {
+    // console.log(`key=${JSON.stringify(key, null, 4)} (${typeof(sample[key])})`);
+    if (Array.isArray(sample[key])) {
+      // console.log("Array.isArray(sample[key])");
+      sample[key].forEach((entry) => {
+        // console.log(`entry=${JSON.stringify(entry, null, 4)}\n`);
+        params.push({
+          name: `${key}[]`,
+          value: entry,
+        });
+      });
+    } else if (Object.prototype.toString.call(sample[key]) === '[object Object]') {
+      // console.log("Object.prototype.toString.call(sample[key]) === '[object Object]'");
+      Object.keys(sample[key]).map((k) => {
+        // console.log(`k=${JSON.stringify(k, null, 4)}\n`);
+        if (Array.isArray(sample[key][k])) {
+          // console.log("Array.isArray(sample[key][k])");
+          sample[key][k].forEach((entry) => {
+            // console.log(`entry=${JSON.stringify(entry, null, 4)}\n`);
+            params.push({
+              name: `${key}[${k}][]`,
+              value: entry,
+            });
+          });
+        } else {
+          params.push({
+            name: key + '[' + k + ']',
+            value: sample[key][k],
+          });
+        }
+      });
+    } else {
+      // console.log("else\n");
+      params.push({
+        name: key,
+        value: sample[key],
+      });
+    }
+  });
+
+  return params;
+}
 
 /**
  * Get the payload definition for the given endpoint (path + method) from the
@@ -350,6 +396,7 @@ const getPayloads = function (openApi, path, method) {
     ].forEach((type) => {
       const content = openApi.paths[path][method].requestBody.content[type];
       if (content && content.schema) {
+        // console.log(JSON.stringify(content, null, 4) + "\n");
         const sample = OpenAPISampler.sample(
           content.schema,
           { skipReadOnly: true },
@@ -378,13 +425,8 @@ const getPayloads = function (openApi, path, method) {
         } else if (type == 'application/x-www-form-urlencoded') {
           if (sample === undefined) return null;
 
-          const params = [];
-          Object.keys(sample).map((key) =>
-            params.push({
-              name: encodeURIComponent(key).replace(/\%20/g, '+'),
-              value: encodeURIComponent(sample[key]).replace(/\%20/g, '+'),
-            })
-          );
+          // console.log(`sample=${JSON.stringify(sample, null, 4)}`);
+          const params = formatSamples(sample);
 
           payloads.push({
             mimeType: 'application/x-www-form-urlencoded',

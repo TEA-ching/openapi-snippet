@@ -9,7 +9,7 @@
 'use strict';
 
 const OpenAPIToHar = require('./openapi-to-har.js');
-const HTTPSnippet = require('httpsnippet');
+const { HTTPSnippet, availableTargets } = require('httpsnippet');
 
 /**
  * Return snippets for endpoint identified using path and method in the given
@@ -32,6 +32,7 @@ const getEndpointSnippets = function (openApi, path, method, targets, values) {
 
   const snippets = [];
   for (const har of hars) {
+    // console.log(JSON.stringify(har, null, 4));
     const snippet = new HTTPSnippet(har);
     snippets.push(
       ...getSnippetsForTargets(
@@ -147,7 +148,7 @@ const formatTarget = function (targetStr) {
   const title = capitalizeFirstLetter(language);
   let library = targetStr.split('_')[1];
 
-  const validTargets = HTTPSnippet.availableTargets();
+  const validTargets = availableTargets();
   let validLanguage = false;
   let validLibrary = false;
   for (let i in validTargets) {
@@ -192,16 +193,25 @@ const formatTarget = function (targetStr) {
  */
 const getSnippetsForTargets = function (targets, snippet, mimeType) {
   const snippets = [];
+  let convertOptions = {};
   for (let j in targets) {
     const target = formatTarget(targets[j]);
     if (!target) throw new Error('Invalid target: ' + targets[j]);
+    // console.log(target.title);
+    if (target.title === 'Shell + Curl') {
+      convertOptions['short'] = true;
+    } else {
+      convertOptions = {};
+    }
+    // console.log(convertOptions);
     snippets.push({
       id: targets[j],
       ...(mimeType !== undefined && { mimeType: mimeType }),
       title: target.title,
       content: snippet.convert(
         target.language,
-        typeof target.library !== 'undefined' ? target.library : null
+        typeof target.library !== 'undefined' ? target.library : null,
+        convertOptions
       ),
     });
   }

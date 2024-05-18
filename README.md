@@ -9,6 +9,11 @@ This package takes as input an OpenAPI v2.0 or v3.0.x document. It translates th
 npm i openapi-snippet
 ```
 
+## Already built OpenAPI Snippet
+
+If you don't want to build the library yourself, you can use the already built version of OpenAPI Snippet. Find the latest version in the `dist` folder.
+
+```html
 ## Build OpenAPI Snippet (for use in browser)
 Clone this repository. Install required dependencies:
 
