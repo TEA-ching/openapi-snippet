@@ -13,8 +13,8 @@ npm i openapi-snippet
 
 If you don't want to build the library yourself, you can use the already built version of OpenAPI Snippet. Find the latest version in the `dist` folder.
 
-```html
 ## Build OpenAPI Snippet (for use in browser)
+
 Clone this repository. Install required dependencies:
 
 ```bash
