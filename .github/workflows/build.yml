@@ -7,6 +7,13 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  packages: write
+  attestations: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,5 +43,5 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add dist
-        git commit -am 'Update dist'
+        git commit -am 'Update dist' dist/*
         git push origin main
