@@ -8,8 +8,8 @@
  */
 'use strict';
 
-const OpenAPIToHar = require('./openapi-to-har.js');
-const { HTTPSnippet, availableTargets } = require('httpsnippet');
+import { getEndpoint, getAll } from './openapi-to-har.js';
+import { HTTPSnippet, availableTargets } from '@sctg/httpsnippet';
 
 /**
  * Return snippets for endpoint identified using path and method in the given
@@ -22,13 +22,13 @@ const { HTTPSnippet, availableTargets } = require('httpsnippet');
  *                          ['cURL', 'Node']
  * @param {object} values   Optional: Values for the query parameters if present
  */
-const getEndpointSnippets = function (openApi, path, method, targets, values) {
+export const getEndpointSnippets = function (openApi, path, method, targets, values) {
   // if optional parameter is not provided, set it to empty object
   if (typeof values === 'undefined') {
     values = {};
   }
 
-  const hars = OpenAPIToHar.getEndpoint(openApi, path, method, values);
+  const hars = getEndpoint(openApi, path, method, values);
 
   const snippets = [];
   for (const har of hars) {
@@ -61,8 +61,8 @@ const getEndpointSnippets = function (openApi, path, method, targets, values) {
  * @param {array} targets   List of languages to create snippets in, e.g,
  *                          ['cURL', 'Node']
  */
-const getSnippets = function (openApi, targets) {
-  const endpointHarInfoList = OpenAPIToHar.getAll(openApi);
+export const getSnippets = function (openApi, targets) {
+  const endpointHarInfoList = getAll(openApi);
 
   const results = [];
   for (let i in endpointHarInfoList) {
@@ -191,7 +191,7 @@ const formatTarget = function (targetStr) {
  * @param snippet {Object}              Snippet object from httpsnippet to convert into the target objects
  * @param mimeType {string | undefined} Additional information to add uniqueness to the produced snippets
  */
-const getSnippetsForTargets = function (targets, snippet, mimeType) {
+export const getSnippetsForTargets = function (targets, snippet, mimeType) {
   const snippets = [];
   let convertOptions = {};
   for (let j in targets) {
@@ -222,23 +222,13 @@ const capitalizeFirstLetter = function (string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-module.exports = {
+export const OpenAPISnippets = {
   getSnippets,
   getEndpointSnippets,
 };
 
 // The if is only for when this is run from the browser
 if (typeof window !== 'undefined') {
-  // grab existing namespace object, or create a blank object
-  // if it doesn't exist
-  let OpenAPISnippets = window.OpenAPISnippets || {};
-
-  // define that object
-  OpenAPISnippets = {
-    getSnippets,
-    getEndpointSnippets,
-  };
-
   // replace/create the global namespace
   window.OpenAPISnippets = OpenAPISnippets;
 }

@@ -18,7 +18,7 @@
  *   "comment" : ""
  * }
  */
-const OpenAPISampler = require('openapi-sampler');
+import { sample as _sample } from 'openapi-sampler';
 
 /**
  * Create HAR Request object for path and method pair described in given OpenAPI
@@ -211,7 +211,7 @@ const objectJoin = function (
  *                              parameter is used to explicitly state which value should be used.
  * @return {HarParameterObject[]} - An array of query string objects
  */
-const createHarParameterObjects = function (
+export const createHarParameterObjects = function (
   { name, in: location, style, explode },
   value
 ) {
@@ -355,7 +355,7 @@ const getPayloads = function (openApi, path, method) {
         typeof param.schema !== 'undefined'
       ) {
         try {
-          const sample = OpenAPISampler.sample(
+          const sample = _sample(
             param.schema,
             { skipReadOnly: true },
             openApi
@@ -397,7 +397,7 @@ const getPayloads = function (openApi, path, method) {
       const content = openApi.paths[path][method].requestBody.content[type];
       if (content && content.schema) {
         // console.log(JSON.stringify(content, null, 4) + "\n");
-        const sample = OpenAPISampler.sample(
+        const sample = _sample(
           content.schema,
           { skipReadOnly: true },
           openApi
@@ -862,8 +862,5 @@ const resolveRef = function (openApi, ref) {
   return recursive(openApi, 1);
 };
 
-module.exports = {
-  getAll: openApiToHarList,
-  getEndpoint: createHar,
-  createHarParameterObjects,
-};
+export const getAll = openApiToHarList;
+export const getEndpoint = createHar;
