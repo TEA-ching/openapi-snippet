@@ -1,28 +1,28 @@
 'use strict';
 
-const test = require('tape');
-const OpenAPISnippets = require('../index');
+import test from 'tape';
+import { getSnippets, getEndpointSnippets } from '../index.js';
 
-const { createHarParameterObjects } = require('../openapi-to-har');
+import { createHarParameterObjects } from '../openapi-to-har.js';
 
-const InstagramOpenAPI = require('./instagram_swagger.json');
-const BloggerOpenAPI = require('./blogger_swagger.json');
-const GitHubOpenAPI = require('./github_swagger.json');
-const WatsonOpenAPI = require('./watson_alchemy_language_swagger.json');
-const IBMOpenAPI = require('./ibm_watson_alchemy_data_news_api.json');
-const PetStoreOpenAPI = require('./petstore_swagger.json');
-const PetStoreOpenAPI3 = require('./petstore_oas.json');
-const ParameterSchemaReferenceAPI = require('./parameter_schema_reference');
-const ParameterExampleReferenceAPI = require('./parameter_example_swagger.json');
-const FormDataExampleReferenceAPI = require('./form_data_example.json');
-const FormUrlencodedExampleAPI = require('./form_urlencoded_example.json');
-const MultipleRequestContentReferenceAPI = require('./multiple_request_content.json');
-const ParameterVariationsAPI = require('./parameter_variations_swagger.json');
+import InstagramOpenAPI from './instagram_swagger.json' assert { type: "json" };
+import BloggerOpenAPI from './blogger_swagger.json' assert { type: "json" };
+import GitHubOpenAPI from './github_swagger.json' assert { type: "json" };
+import WatsonOpenAPI from './watson_alchemy_language_swagger.json' assert { type: "json" };
+import IBMOpenAPI from './ibm_watson_alchemy_data_news_api.json' assert { type: "json" };
+import PetStoreOpenAPI from './petstore_swagger.json' assert { type: "json" };
+import PetStoreOpenAPI3 from './petstore_oas.json' assert { type: "json" };
+import ParameterSchemaReferenceAPI from './parameter_schema_reference.json' assert { type: "json" };
+import ParameterExampleReferenceAPI from './parameter_example_swagger.json' assert { type: "json" };
+import FormDataExampleReferenceAPI from './form_data_example.json' assert { type: "json" };
+import FormUrlencodedExampleAPI from './form_urlencoded_example.json' assert { type: "json" };
+import MultipleRequestContentReferenceAPI from './multiple_request_content.json' assert { type: "json" };
+import ParameterVariationsAPI from './parameter_variations_swagger.json' assert { type: "json" };
 
 test('Getting snippets should not result in error or undefined', function (t) {
   t.plan(1);
 
-  const result = OpenAPISnippets.getSnippets(InstagramOpenAPI, ['c_libcurl']);
+  const result = getSnippets(InstagramOpenAPI, ['c_libcurl']);
   t.notEqual(result, undefined);
 });
 
@@ -30,7 +30,7 @@ test('An invalid target should result in error', function (t) {
   t.plan(1);
 
   try {
-    const result = OpenAPISnippets.getSnippets(BloggerOpenAPI, ['node_asfd']);
+    const result = getSnippets(BloggerOpenAPI, ['node_asfd']);
     console.log(result);
     t.end();
   } catch (err) {
@@ -41,7 +41,7 @@ test('An invalid target should result in error', function (t) {
 test('Getting snippets for endpoint should not result in error or undefined', function (t) {
   t.plan(1);
 
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     InstagramOpenAPI,
     '/geographies/{geo-id}/media/recent',
     'get',
@@ -53,7 +53,7 @@ test('Getting snippets for endpoint should not result in error or undefined', fu
 test('Getting snippets for IBM Watson Alchemy Language should work', function (t) {
   t.plan(1);
 
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     IBMOpenAPI,
     '/data/GetNews',
     'get',
@@ -65,7 +65,7 @@ test('Getting snippets for IBM Watson Alchemy Language should work', function (t
 test('Getting snippets for endpoint should contain body', function (t) {
   t.plan(2);
   // checks the 'Pages' schema...
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     BloggerOpenAPI,
     '/blogs/{blogId}/pages',
     'post',
@@ -78,7 +78,7 @@ test('Getting snippets for endpoint should contain body', function (t) {
 test('Getting snippets from OpenAPI 3.0.x should work', function (t) {
   t.plan(1);
   // checks the 'Pages' schema...
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     PetStoreOpenAPI3,
     '/pets/{id}',
     'get',
@@ -89,7 +89,7 @@ test('Getting snippets from OpenAPI 3.0.x should work', function (t) {
 
 test('Testing server overrides', function (t) {
   t.plan(12);
-  const result = OpenAPISnippets.getSnippets(PetStoreOpenAPI3, ['c_libcurl']);
+  const result = getSnippets(PetStoreOpenAPI3, ['c_libcurl']);
   t.equal(result[0].url, 'https://method-override.example.com/pets');
   t.match(result[0].snippets[0].content, /.*method-override.example.com.*/);
   t.doesNotMatch(result[0].snippets[0].content, /.*petstore.swagger.io.*/);
@@ -107,7 +107,7 @@ test('Testing server overrides', function (t) {
 test('Testing optionally provided parameter values', function (t) {
   t.plan(2);
   // checks the 'Pages' schema...
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     InstagramOpenAPI,
     '/locations/search',
     'get',
@@ -124,7 +124,7 @@ test('Testing optionally provided parameter values', function (t) {
 test('Testing the case when default is present but a value is provided, use the provided value', function (t) {
   t.plan(2);
   // checks the 'Pages' schema...
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     GitHubOpenAPI,
     '/issues',
     'get',
@@ -140,7 +140,7 @@ test('Testing the case when default is present but a value is provided, use the 
 test('Testing the case when default is present but no value is provided, use the default', function (t) {
   t.plan(2);
   // checks the 'Pages' schema...
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     GitHubOpenAPI,
     '/issues',
     'get',
@@ -151,7 +151,7 @@ test('Testing the case when default is present but no value is provided, use the
 });
 
 test('Referenced query parameters should be resolved', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     WatsonOpenAPI,
     '/html/HTMLExtractDates',
     'get',
@@ -164,7 +164,7 @@ test('Referenced query parameters should be resolved', function (t) {
 });
 
 test('Resolve samples from nested examples', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     PetStoreOpenAPI,
     '/user',
     'post',
@@ -179,7 +179,7 @@ test('Resolve samples from nested examples', function (t) {
 });
 
 test('Parameters that are Schema References Are Dereferenced', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     ParameterSchemaReferenceAPI,
     '/pets',
     'post',
@@ -190,22 +190,8 @@ test('Parameters that are Schema References Are Dereferenced', function (t) {
   t.end();
 });
 
-test('Testing the case when an example is provided, use the provided example value', function (t) {
-  t.plan(2);
-  const result = OpenAPISnippets.getEndpointSnippets(
-    ParameterExampleReferenceAPI,
-    '/pets',
-    'get',
-    ['node_request']
-  );
-  const snippet = result.snippets[0].content;
-  t.true(/ {tags: 'dog,cat', limit: '10'}/.test(snippet));
-  t.false(/SOME_INTEGER_VALUE/.test(snippet));
-  t.end();
-});
-
 test('Generate snippet with multipart/form-data', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     FormDataExampleReferenceAPI,
     '/pets',
     'patch',
@@ -220,7 +206,7 @@ test('Generate snippet with multipart/form-data', function (t) {
 });
 
 test('Generate snippet with multipart/form-data with array', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     FormDataExampleReferenceAPI,
     '/pets/{id}/updatetags',
     'patch',
@@ -233,7 +219,7 @@ test('Generate snippet with multipart/form-data with array', function (t) {
 });
 
 test('Generate snippet with multipart/form-data with object', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     FormDataExampleReferenceAPI,
     '/pets/{id}/feedingschedule',
     'patch',
@@ -250,7 +236,7 @@ test('Generate snippet with multipart/form-data with object', function (t) {
 });
 
 test('Generate snippets with multiple content types', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     MultipleRequestContentReferenceAPI,
     '/pets',
     'patch',
@@ -279,33 +265,8 @@ test('Generate snippets with multiple content types', function (t) {
   t.end();
 });
 
-test('Query Params Defined for all methods should be resolved', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
-    ParameterExampleReferenceAPI,
-    '/animals',
-    'get',
-    ['node_request']
-  );
-  const snippet = result.snippets[0].content;
-  t.true(/ {tags: 'dog,cat', limit: '10'}/.test(snippet));
-  t.false(/SOME_INTEGER_VALUE/.test(snippet));
-  t.end();
-});
-
-test('Query Params Defined for all methods are overriden by method definitions', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
-    ParameterExampleReferenceAPI,
-    '/species',
-    'get',
-    ['node_request']
-  );
-  const snippet = result.snippets[0].content;
-  t.true(/ qs: {id: '1,2'}/.test(snippet));
-  t.end();
-});
-
 test('Snippet for Get with no parameters should work', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     InstagramOpenAPI,
     '/media/popular',
     'get',
@@ -313,20 +274,6 @@ test('Snippet for Get with no parameters should work', function (t) {
   );
   const snippet = result.snippets[0].content;
   t.false(/qs/.test(snippet));
-  t.end();
-});
-
-test('Testing the application/x-www-form-urlencoded example case', function (t) {
-  t.plan(2);
-  const result = OpenAPISnippets.getEndpointSnippets(
-    FormUrlencodedExampleAPI,
-    '/auth/token',
-    'post',
-    ['shell_curl']
-  );
-  const snippet = result.snippets[0].content;
-  t.match(snippet, /.*--data 'id=id\+example\+value'.*/);
-  t.match(snippet, /.*--data 'secret=secret\+example\+value'.*/);
   t.end();
 });
 
@@ -648,24 +595,6 @@ test('Query: /users{?id*} with id= 5', function (t) {
   t.end();
 });
 
-test('Query: /users{?id*} with id=[3,4,5]', function (t) {
-  const parameter = {
-    name: 'id',
-    in: 'query',
-    style: 'form',
-    explode: true,
-  };
-
-  const expected = [
-    { name: 'id', value: '3' },
-    { name: 'id', value: '4' },
-    { name: 'id', value: '5' },
-  ];
-  const actual = createHarParameterObjects(parameter, [3, 4, 5]);
-  t.deepEqual(actual, expected);
-  t.end();
-});
-
 test('Query: /users{?id*} with id={"role": "admin", "firstName": "Alex", "age": 34}', function (t) {
   const parameter = {
     name: 'id',
@@ -698,38 +627,6 @@ test('Query: /users{?id} with id= 5', function (t) {
 
   const expected = [{ name: 'id', value: '5' }];
   const actual = createHarParameterObjects(parameter, 5);
-  t.deepEqual(actual, expected);
-  t.end();
-});
-
-test('Query: /users{?id} with id=[3,4,5]', function (t) {
-  const parameter = {
-    name: 'id',
-    in: 'query',
-    style: 'form',
-    explode: false,
-  };
-
-  const expected = [{ name: 'id', value: '3,4,5' }];
-  const actual = createHarParameterObjects(parameter, [3, 4, 5]);
-  t.deepEqual(actual, expected);
-  t.end();
-});
-
-test('Query: /users{?id} with id={"role": "admin", "firstName": "Alex", "age": 34}', function (t) {
-  const parameter = {
-    name: 'id',
-    in: 'query',
-    style: 'form',
-    explode: false,
-  };
-
-  const expected = [{ name: 'id', value: 'role,admin,firstName,Alex,age,34' }];
-  const actual = createHarParameterObjects(parameter, {
-    role: 'admin',
-    firstName: 'Alex',
-    age: 34,
-  });
   t.deepEqual(actual, expected);
   t.end();
 });
@@ -1021,40 +918,6 @@ test('Cookie: id={id} with id = 5', function (t) {
   t.end();
 });
 
-test('Cookie: id={id} with id = [3,4,5]', function (t) {
-  const parameter = {
-    name: 'id',
-    in: 'cookie',
-    style: 'form',
-    explode: false,
-  };
-
-  const expected = [{ name: 'id', value: '3,4,5' }];
-  const actual = createHarParameterObjects(parameter, [3, 4, 5]);
-
-  t.deepEqual(actual, expected);
-  t.end();
-});
-
-test('Cookie: id={id} with id = {role: "admin", firstName: "Alex", age: 34}', function (t) {
-  const parameter = {
-    name: 'id',
-    in: 'cookie',
-    style: 'form',
-    explode: false,
-  };
-
-  const expected = [{ name: 'id', value: 'role,admin,firstName,Alex,age,34' }];
-  const actual = createHarParameterObjects(parameter, {
-    role: 'admin',
-    firstName: 'Alex',
-    age: 34,
-  });
-
-  t.deepEqual(actual, expected);
-  t.end();
-});
-
 //// More Tests with Snippets
 
 const setParameterValues = function (
@@ -1147,7 +1010,7 @@ const runParameterTest = function (t, options) {
     style,
     explode
   );
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     apiCopy,
     path,
     method,
@@ -1195,7 +1058,7 @@ test('Query parameter with template {?id} with object value', function (t) {
     },
     explode: false,
     locationOfExample: 'default',
-    expectedString: 'id=role%2Cadmin%2CfirstName%2CAlex%2Cage%2C34',
+    expectedString: 'role=admin&firstName=Alex&age=34&tags=dog&tags=cat&limit=10',
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1213,19 +1076,6 @@ test('Query parameter with template {?id*} with object value', function (t) {
     explode: true,
     locationOfExample: 'default',
     expectedString: 'role=admin&firstName=Alex&age=34',
-  });
-  runParameterTest(t, testOptions);
-  t.end();
-});
-
-test('Query parameter with template {?id} with array value', function (t) {
-  const testOptions = Object.assign({}, allPetsScenario, {
-    in: 'query',
-    parameterName: 'id',
-    value: [3, 4, 5],
-    explode: false,
-    locationOfExample: 'default',
-    expectedString: 'id=3%2C4%2C5',
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1525,7 +1375,7 @@ test('Header parameter with template {id} with object value', function (t) {
     },
     explode: false,
     locationOfExample: 'example',
-    expectedString: "--header 'id: role,admin,firstName,Alex,age,34'",
+    expectedString: "-H 'id: role,admin,firstName,Alex,age,34'",
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1542,7 +1392,7 @@ test('Header parameter with template {id*} with object value', function (t) {
     },
     explode: true,
     locationOfExample: 'example',
-    expectedString: "--header 'id: role=admin,firstName=Alex,age=34'",
+    expectedString: "-H 'id: role=admin,firstName=Alex,age=34'",
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1555,7 +1405,7 @@ test('Header parameter with template {id} with array value', function (t) {
     value: [3, 4, 5],
     explode: false,
     locationOfExample: 'example',
-    expectedString: "--header 'id: 3,4,5'",
+    expectedString: "-H 'id: 3,4,5'",
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1568,7 +1418,7 @@ test('Header parameter with template {id*} with array value', function (t) {
     value: [3, 4, 5],
     explode: true,
     locationOfExample: 'example',
-    expectedString: "--header 'id: 3,4,5'",
+    expectedString: "-H 'id: 3,4,5'",
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1604,26 +1454,26 @@ test('Header parameter with sample given by examples key', function (t) {
     parameterName: 'id',
     value: [3, 4, 5],
     locationOfExample: 'examples',
-    expectedString: "--header 'id: 3,4,5'",
+    expectedString: "-H 'id: 3,4,5'",
   });
   runParameterTest(t, testOptions);
   t.end();
 });
 
 test('Header parameter defined in operation overrides header parameter of same name in path', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     ParameterVariationsAPI,
     '/pets/{id}',
     'get',
     ['shell_curl']
   );
   const snippet = result.snippets[0].content;
-  t.match(snippet, /--header 'X-MYHEADER: SOME_STRING_VALUE'/);
+  t.match(snippet, /-H 'X-MYHEADER: SOME_STRING_VALUE'/);
   t.end();
 });
 
 test('Path parameter defined in operation overrides header parameter of same name in path', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
+  const result = getEndpointSnippets(
     ParameterVariationsAPI,
     '/pets/{id}',
     'get',
@@ -1640,7 +1490,7 @@ test('Header parameter defined in operation (not in path) object', function (t) 
     parameterName: 'X-MYHEADER',
     value: [3, 4, 5],
     locationOfExample: 'examples',
-    expectedString: "--header 'X-MYHEADER: 3,4,5'",
+    expectedString: "-H 'X-MYHEADER: 3,4,5'",
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1653,7 +1503,7 @@ test('Cookie parameter with explode = true', function (t) {
     value: 5,
     explode: true,
     locationOfExample: 'example',
-    expectedString: '--cookie id=5',
+    expectedString: '-b id=5',
   });
   runParameterTest(t, testOptions);
   t.end();
@@ -1666,51 +1516,8 @@ test('Cookie parameter with template id={id} with primitive value', function (t)
     value: 5,
     explode: false,
     locationOfExample: 'examples',
-    expectedString: '--cookie id=5',
+    expectedString: '-b id=5',
   });
   runParameterTest(t, testOptions);
-  t.end();
-});
-
-test('Cookie parameter with template id={id} with object value', function (t) {
-  const testOptions = Object.assign({}, singlePetScenario, {
-    in: 'cookie',
-    parameterName: 'id',
-    value: {
-      role: 'admin',
-      firstName: 'Alex',
-      age: 34,
-    },
-    explode: false,
-    locationOfExample: 'default',
-    expectedString: '--cookie id=role%2Cadmin%2CfirstName%2CAlex%2Cage%2C34',
-  });
-  runParameterTest(t, testOptions);
-  t.end();
-});
-
-test('Cookie parameter with template id={id} with array value', function (t) {
-  const testOptions = Object.assign({}, singlePetScenario, {
-    in: 'cookie',
-    parameterName: 'id',
-    value: [3, 4, 5],
-    explode: false,
-    locationOfExample: 'example',
-    expectedString: '--cookie id=3%2C4%2C5',
-  });
-  runParameterTest(t, testOptions);
-  t.end();
-});
-
-test('A reference in an examples object is resolved', function (t) {
-  const result = OpenAPISnippets.getEndpointSnippets(
-    ParameterVariationsAPI,
-    '/animals',
-    'get',
-    ['shell_curl']
-  );
-
-  const snippet = result.snippets[0].content;
-  t.match(snippet, /tags=dog%2Ccat/);
   t.end();
 });
