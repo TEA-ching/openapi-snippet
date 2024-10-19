@@ -37,6 +37,7 @@ jobs:
       run: npm test
 
     - name: Deploy to GitHub Pages
+      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
