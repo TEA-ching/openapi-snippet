@@ -1,5 +1,5 @@
 {
-  "name": "openapi-snippet",
+  "name": "@sctg/openapi-snippet",
   "version": "0.14.0",
   "description": "Generates code snippets from Open API (previously Swagger) documents.",
   "type": "module",
@@ -41,5 +41,9 @@
     "uglifyify": "^5.0.0",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
+  },
+  "publishConfig": {
+    "tag": "latest",
+    "access": "public"
   }
 }

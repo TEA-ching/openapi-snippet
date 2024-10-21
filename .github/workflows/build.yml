@@ -1,4 +1,5 @@
-# .github/workflows/build-and-deploy.yml
+# Copyright 2024 Ronan LE MEILLAT
+# Licensed under the Affero GPL v3
 name: Build and Deploy
 
 on:
@@ -46,3 +47,9 @@ jobs:
         git add dist
         git commit -m 'Update dist' dist/*
         git push origin main
+
+    - name: Publish to npm
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPMJS_TOKEN}}
+      run: npm publish
+  
