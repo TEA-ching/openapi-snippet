@@ -52,4 +52,5 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPMJS_TOKEN}}
       run: npm publish
+      continue-on-error: true
   
